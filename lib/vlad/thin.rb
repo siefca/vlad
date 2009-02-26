@@ -15,25 +15,26 @@ namespace :vlad do
   set :thin_log_file,      nil
   set :thin_pid_file,      nil
   set :thin_port,          nil
-  set :thin_socket,        "/tmp/thin.sock"
+  set :thin_socket,        nil
   set :thin_prefix,        nil
   set :thin_servers,       2
   set :thin_user,          nil
-  set :thin_rackup,        nil
 
   desc "Prepares application servers for deployment. thin
 configuration is set via the thin_* variables.".cleanup
 
   remote_task :setup_app, :roles => :app do
+  
+    raise(ArgumentError, "Please provide either thin_socket or thin_port") if thin_port.nil? && thin_socket.nil?
+  
     cmd = [
            "#{thin_command} config",
            "-s #{thin_servers}",
-           "-S #{thin_socket}",
+           ("-S #{thin_socket}" if thin_socket),
            "-e #{thin_environment}",
+           "-a #{thin_address}",
            "-c #{current_path}",
            "-C #{thin_conf}",
-           ("-a #{thin_address}" if thin_address)
-           ("-R #{thin_rackup}" if thin_rackup )
            ("-P #{thin_pid_file}" if thin_pid_file),
            ("-l #{thin_log_file}" if thin_log_file),
            ("--user #{thin_user}" if thin_user),
