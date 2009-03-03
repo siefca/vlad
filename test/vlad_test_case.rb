@@ -54,7 +54,7 @@ class Rake::RemoteTask
 end
 
 class VladTestCase < Test::Unit::TestCase
-  undef_method :default_test
+  undef_method :default_test if self.respond_to?(:default_test)
 
   def setup
     @vlad = Rake::RemoteTask
